@@ -1,0 +1,119 @@
+// ====================================================================
+// Prisma Schema — Dashboard Mercearia
+// Local: SQLite (WAL mode) | Nuvem: Supabase / PostgreSQL (Zero Friction)
+// ====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------------------------------------
+// 1. Catálogo e Estoque de Produtos (Importado do Modelo P7)
+// --------------------------------------------------------------------
+model ProdutoEstoque {
+  id                String            @id @default(cuid())
+  codigo            String            @unique // Código interno P7 (ex: "001", "PROD-10")
+  barras            String?           // EAN-13 / GTIN opcional para leitura por scanner
+  ncm               String?           // Nomenclatura Comum do Mercosul
+  discriminacao     String            // Descrição completa do produto
+  unidade           String            @default("UN") // UN, KG, CX, LT, PCT, etc.
+  quantidade        Int               @default(0) // Saldo em estoque (Regra: quantidade >= 0)
+  unitarioCentavos  Int               @map("unitario_centavos") // Preço unitário em centavos (ex: R$ 5,50 = 550)
+  totalCentavos     Int               @map("total_centavos") // Valor total de estoque em centavos (quantidade * unitario)
+  ativo             Boolean           @default(true) // false quando estoque zera ou item inativado
+  criadoEm          DateTime          @default(now()) @map("criado_em")
+  atualizadoEm      DateTime          @updatedAt @map("atualizado_em")
+
+  // Relacionamentos
+  baixas            HistoricoBaixa[]
+
+  // Índices para otimização de consultas e motor de baixa inteligente
+  @@index([ativo, quantidade])      // Filtro de candidatos disponíveis para baixa inteligente
+  @@index([barras])                 // Busca rápida por leitor de código de barras
+  @@index([unitarioCentavos])       // Busca por valor unitário / correspondência exata
+  @@map("produtos_estoque")
+}
+
+// --------------------------------------------------------------------
+// 2. Livro Diário de Vendas e Fechamento de Caixa
+// --------------------------------------------------------------------
+model LancamentoDiario {
+  id                    String            @id @default(cuid())
+  data                  String            // Data fiscal no formato ISO "YYYY-MM-DD" (ex: "2026-11-05")
+  valorCartaoCentavos   Int               @default(0) @map("valor_cartao_centavos")
+  valorDinheiroCentavos Int               @default(0) @map("valor_dinheiro_centavos")
+  totalDiarioCentavos   Int               @default(0) @map("total_diario_centavos") // Cartão + Dinheiro
+  observacoes           String?           @map("observacoes")
+  criadoEm              DateTime          @default(now()) @map("criado_em")
+
+  // Relacionamentos
+  baixas                HistoricoBaixa[]
+
+  // Índices para agregação e consulta rápida por data
+  @@index([data])
+  @@map("lancamentos_diarios")
+}
+
+// --------------------------------------------------------------------
+// 3. Histórico e Trilha Imutável de Auditoria de Baixas
+// --------------------------------------------------------------------
+model HistoricoBaixa {
+  id                   String            @id @default(cuid())
+  lancamentoDiarioId   String?           @map("lancamento_diario_id")
+  produtoId            String            @map("produto_id")
+  codigoProduto        String            @map("codigo_produto") // Snapshot histórico do código
+  discriminacaoProduto String            @map("discriminacao_produto") // Snapshot histórico da descrição
+  quantidadeBaixada    Int               @map("quantidade_baixada")
+  unitarioCentavos     Int               @map("unitario_centavos") // Snapshot do valor unitário no momento da venda
+  totalCentavos        Int               @map("total_centavos") // quantidadeBaixada * unitarioCentavos
+  formaPagamento       String            @map("forma_pagamento") // "CARTAO" | "DINHEIRO"
+  dataHora             DateTime          @default(now()) @map("data_hora")
+
+  // Relacionamentos com integridade referencial
+  produto              ProdutoEstoque    @relation(fields: [produtoId], references: [id], onDelete: Restrict)
+  lancamentoDiario     LancamentoDiario? @relation(fields: [lancamentoDiarioId], references: [id], onDelete: SetNull)
+
+  // Índices para relatórios e cruzamento de auditoria
+  @@index([produtoId])
+  @@index([lancamentoDiarioId])
+  @@index([dataHora])
+  @@map("historico_baixas")
+}
+
+// --------------------------------------------------------------------
+// 4. Controle de Despesas Mensais para Confronto Financeiro
+// --------------------------------------------------------------------
+model DespesaMensal {
+  id             String            @id @default(cuid())
+  mesAno         String            @map("mes_ano") // Período de competência "YYYY-MM" (ex: "2026-11")
+  descricao      String            @map("descricao")
+  categoria      String            @map("categoria") // "OPERACIONAL" | "MERCADORIA" | "CONTAS_FIXAS" | "PESSOAL" | "IMPOSTOS" | "OUTROS"
+  valorCentavos  Int               @map("valor_centavos") // Valor da despesa em centavos
+  dataPagamento  String?           @map("data_pagamento") // Data de quitação "YYYY-MM-DD"
+  criadoEm       DateTime          @default(now()) @map("criado_em")
+
+  // Índices para consolidação mensal de DRE / confronto com entradas
+  @@index([mesAno])
+  @@index([categoria])
+  @@map("despesas_mensais")
+}
+
+// --------------------------------------------------------------------
+// 5. Notas Fiscais de Entrada Mensais (Confronto Fiscal vs. Saídas)
+// --------------------------------------------------------------------
+model NotaFiscalMensal {
+  id            String   @id @default(cuid())
+  mesAno        String   @unique @map("mes_ano") // Período "YYYY-MM" (ex: "2026-03")
+  valorCentavos Int      @map("valor_centavos") // Valor total de NFs de entrada em centavos
+  observacoes   String?  @map("observacoes")
+  criadoEm      DateTime @default(now()) @map("criado_em")
+  atualizadoEm  DateTime @updatedAt @map("atualizado_em")
+
+  @@index([mesAno])
+  @@map("notas_fiscais_mensais")
+}

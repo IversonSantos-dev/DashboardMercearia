@@ -1,0 +1,19 @@
+--- a/src/lib/prisma.ts
++++ b/src/lib/prisma.ts
+@@ -18,13 +18,14 @@ const prismaClientSingleton = () => {
+   if (isSqlite) {
+     // Aplica pragmas de alta concorrência e integridade para SQLite
++    // Pragmas que retornam linhas tabulares (journal_mode, busy_timeout) exigem $queryRawUnsafe
+     client
+-      .$executeRawUnsafe(`PRAGMA journal_mode = WAL;`)
++      .$queryRawUnsafe(`PRAGMA journal_mode = WAL;`)
+       .catch((err) =>
+         console.warn("[Prisma] Falha ao definir PRAGMA journal_mode=WAL:", err)
+       );
+ 
+     client
+-      .$executeRawUnsafe(`PRAGMA busy_timeout = 5000;`)
++      .$queryRawUnsafe(`PRAGMA busy_timeout = 5000;`)
+       .catch((err) =>
+         console.warn("[Prisma] Falha ao definir PRAGMA busy_timeout=5000:", err)
+       );

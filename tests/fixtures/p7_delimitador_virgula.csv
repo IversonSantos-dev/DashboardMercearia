@@ -1,0 +1,21 @@
+LIVRO REGISTRO DE INVENTÁRIO - MODELO P7,MERCEARIA SANTO ANTÔNIO LTDA,CNPJ: 12.345.678/0001-90,,,,
+INSCRIÇÃO ESTADUAL: 123.456.789.110,DATA BASE: 31/12/2025,,,,,,
+,,,,,,,
+Código,Barras,NCM,Discriminação,Unid,Qtd,Unitário,Total
+1001,7891000100103,1006.30.21,"Arroz Agulhinha Tipo 1 Pacote 5kg",PCT,120,"28,90","3468,00"
+1002,7891000200209,0713.33.19,"Feijão Carioca Tipo 1 Pacote 1kg",PCT,85,"7,49","636,65"
+1003,7891000300305,1507.90.11,"Óleo de Soja Refinado Pet 900ml",UN,150,"5,89","883,50"
+1004,7891000400401,1701.99.00,"Açúcar Cristal Branco Pacote 1kg",PCT,90,"4,29","386,10"
+1005,7891000500507,0901.21.00,"Café Torrado e Moído Tradicional 500g",PCT,60,"18,90","1134,00"
+1006,7891000600603,0401.20.10,"Leite UHT Integral Longa Vida 1L",UN,200,"4,79","958,00"
+1007,7891000700709,1902.19.00,"Macarrão Espaguete com Ovos 500g",PCT,110,"3,99","438,90"
+1008,7891000800805,2103.20.10,"Molho de Tomate Tradicional Sachê 300g",UN,140,"2,19","306,60"
+1009,7891000900901,3402.20.00,"Detergente Líquido Neutro Frasco 500ml",UN,180,"2,49","448,20"
+1010,7891001001003,3401.19.00,"Sabão em Barra Multiuso Pacote 5x200g",PCT,45,"9,80","441,00"
+1011,7891001101109,2202.10.00,"Refrigerante Guaraná Garrafa Pet 2L",UN,95,"7,99","759,05"
+1012,7891001201205,2203.00.00,"Cerveja Puro Malte Lata 350ml",UN,240,"3,89","933,60"
+1013,7891001301301,4818.10.00,"Papel Higiênico Folha Dupla 12 Rolos",FD,50,"19,90","995,00"
+1014,7891001401407,3306.10.00,"Creme Dental Proteção Anticáries 90g",UN,75,"4,49","336,75"
+1015,7891001501503,1905.31.00,"Biscoito Recheado Chocolate 130g",UN,130,"2,89","375,70"
+,,,,,,,
+,,,TOTAL GERAL DO ESTOQUE,,1770,,"12501,05"
