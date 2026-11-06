@@ -30,6 +30,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.16.6",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^22.13.4",
     "@types/react": "^19.0.10",
