@@ -52,6 +52,9 @@ export function PreviewModal({
   if (!isOpen) return null;
 
   async function handleConfirmarBaixa() {
+    // Trava estrita contra duplo clique
+    if (isSubmitting || itens.length === 0) return;
+
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -392,6 +395,17 @@ export function PreviewModal({
                 Imprimir Comprovante
               </button>
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleNovaVenda();
+                    onClose();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition shadow-sm"
+                >
+                  <X className="h-4 w-4" />
+                  Fechar
+                </button>
                 <Link
                   href={`/financeiro?data=${receipt.dataLancamento}`}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-blue-600 text-xs font-semibold transition"

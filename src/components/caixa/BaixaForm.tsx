@@ -26,20 +26,38 @@ export function BaixaForm({
   onBuscarSugestao,
   isLoading,
 }: BaixaFormProps) {
-  // Handle currency input via right-to-left digit entry
-  function pushDigit(digit: number) {
-    const next = valorAlvoCentavos * 10 + digit;
-    if (next <= 100_000_000) {
-      setValorAlvoCentavos(next);
-    }
-  }
+  // Live text input for standard and mobile numerical keyboards
+  const [displayValue, setDisplayValue] = React.useState<string>(() => {
+    return valorAlvoCentavos > 0 ? (valorAlvoCentavos / 100).toFixed(2).replace(".", ",") : "";
+  });
 
-  function handleBackspace() {
-    setValorAlvoCentavos(Math.floor(valorAlvoCentavos / 10));
+  // Sync display value when valorAlvoCentavos changes externally
+  React.useEffect(() => {
+    if (valorAlvoCentavos === 0) {
+      setDisplayValue("");
+    } else {
+      setDisplayValue((valorAlvoCentavos / 100).toFixed(2).replace(".", ","));
+    }
+  }, [valorAlvoCentavos]);
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // Only keep numeric digits from input
+    const rawDigits = e.target.value.replace(/\D/g, "");
+    if (!rawDigits || rawDigits === "0") {
+      setValorAlvoCentavos(0);
+      setDisplayValue("");
+      return;
+    }
+    const cents = parseInt(rawDigits, 10);
+    if (cents <= 100_000_000) {
+      setValorAlvoCentavos(cents);
+      setDisplayValue((cents / 100).toFixed(2).replace(".", ","));
+    }
   }
 
   function handleClear() {
     setValorAlvoCentavos(0);
+    setDisplayValue("");
   }
 
   function handleCurrencyKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -48,19 +66,10 @@ export function BaixaForm({
       onBuscarSugestao();
       return;
     }
-    if (e.key === "Backspace") {
-      e.preventDefault();
-      handleBackspace();
-      return;
-    }
-    if (e.key === "Delete" || e.key === "Escape") {
+    if (e.key === "Escape") {
       e.preventDefault();
       handleClear();
       return;
-    }
-    if (/^[0-9]$/.test(e.key)) {
-      e.preventDefault();
-      pushDigit(parseInt(e.key, 10));
     }
   }
 
@@ -69,6 +78,7 @@ export function BaixaForm({
     const next = valorAlvoCentavos + add;
     if (next <= 100_000_000) {
       setValorAlvoCentavos(next);
+      setDisplayValue((next / 100).toFixed(2).replace(".", ","));
     }
   }
 
@@ -97,28 +107,31 @@ export function BaixaForm({
         <div className="relative">
           <input
             type="text"
-            readOnly
-            value={centavosToBRL(valorAlvoCentavos)}
+            inputMode="numeric"
+            value={displayValue ? `R$ ${displayValue}` : ""}
+            onChange={handleInputChange}
             onKeyDown={handleCurrencyKeyDown}
             placeholder="R$ 0,00"
-            className="w-full text-3xl font-extrabold text-blue-900 tracking-tight px-4 py-3 bg-blue-50/50 border-2 border-blue-200 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white transition-all text-right font-mono cursor-pointer"
+            className="w-full text-3xl font-extrabold text-blue-900 tracking-tight px-4 py-3 bg-blue-50/50 border-2 border-blue-200 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white transition-all text-right font-mono"
           />
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-blue-400 uppercase">
             BRL
           </span>
         </div>
         <div className="text-[11px] text-slate-400 mt-1 flex justify-between">
-          <span>Digite os números (ex: 2, 5, 5, 0 = R$ 25,50)</span>
-          <button
-            type="button"
-            onClick={() => setValorAlvoCentavos(0)}
-            className="text-blue-600 hover:underline font-semibold"
-          >
-            Limpar (Esc)
-          </button>
+          <span>Digite no teclado ou use os botões rápidos</span>
+          {valorAlvoCentavos > 0 && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="text-blue-600 hover:underline font-semibold"
+            >
+              Limpar
+            </button>
+          )}
         </div>
 
-        {/* Denomination Presets */}
+        {/* Denomination Quick Adders */}
         <div className="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-1.5">
           {[
             { label: "+R$ 5", val: 500 },
@@ -137,44 +150,6 @@ export function BaixaForm({
               {denom.label}
             </button>
           ))}
-        </div>
-
-        {/* On-Screen Touch POS Keypad */}
-        <div className="mt-3 pt-3 border-t border-slate-100">
-          <div className="grid grid-cols-3 gap-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-              <button
-                key={num}
-                type="button"
-                onClick={() => pushDigit(num)}
-                className="py-3 sm:py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-blue-50 active:border-blue-400 font-bold text-lg text-slate-800 shadow-sm transition select-none"
-              >
-                {num}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={handleClear}
-              className="py-3 sm:py-2.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 font-bold text-xs text-rose-700 transition select-none uppercase tracking-wider"
-            >
-              Limpar
-            </button>
-            <button
-              type="button"
-              onClick={() => pushDigit(0)}
-              className="py-3 sm:py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-blue-50 active:border-blue-400 font-bold text-lg text-slate-800 shadow-sm transition select-none"
-            >
-              0
-            </button>
-            <button
-              type="button"
-              onClick={handleBackspace}
-              className="py-3 sm:py-2.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 font-bold text-base text-slate-700 transition select-none flex items-center justify-center"
-              title="Apagar"
-            >
-              ⌫
-            </button>
-          </div>
         </div>
       </div>
 

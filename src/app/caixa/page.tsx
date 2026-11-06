@@ -78,6 +78,11 @@ export default function CaixaPage() {
       setItensBaixa(data.sugestao.itens || []);
       setCatalogoProximidade(data.catalogoProximidade || []);
       setTempoExecucaoMs(data.tempoExecucaoMs ?? null);
+
+      // Abre automaticamente o pop-up com os valores, quantidades e botão de debitar
+      if (data.sugestao?.itens && data.sugestao.itens.length > 0) {
+        setIsPreviewOpen(true);
+      }
     } catch (err: any) {
       setErrorSugestao(err.message || "Erro inesperado ao buscar sugestão.");
       setSugestaoMeta(null);
@@ -159,8 +164,8 @@ export default function CaixaPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 pb-16">
-      {/* Top Bar Navigation */}
-      <header className="border-b border-slate-200 bg-white">
+      {/* Top Bar Navigation (desktop only) */}
+      <header className="border-b border-slate-200 bg-white hidden md:block">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
