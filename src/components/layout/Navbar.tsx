@@ -41,25 +41,25 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm hidden md:block">
-      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Brand identity */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm">
+      <div className="max-w-7xl mx-auto flex h-14 md:h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Brand identity (visível no celular e no desktop) */}
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
             <Store className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-slate-900 tracking-tight text-lg leading-tight">
+            <span className="font-extrabold text-slate-900 tracking-tight text-base sm:text-lg leading-tight">
               Mercearia
             </span>
-            <span className="text-xs font-medium text-slate-500 leading-tight">
+            <span className="text-[10px] sm:text-xs font-medium text-slate-500 leading-tight">
               Controle &amp; Caixa
             </span>
           </div>
         </Link>
 
-        {/* Navigation links */}
-        <nav className="flex items-center gap-1 sm:gap-2">
+        {/* Navigation links (apenas no desktop; no celular usamos a dock inferior) */}
+        <nav className="hidden md:flex items-center gap-1 sm:gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -73,13 +73,13 @@ export function Navbar() {
                 }`}
               >
                 <Icon className={`h-4 w-4 ${item.active ? "text-blue-600" : "text-slate-400"}`} />
-                <span className="hidden md:inline">{item.name}</span>
+                <span>{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Operational Status */}
+        {/* Operational Status (Desktop) */}
         <div className="hidden lg:flex items-center gap-2 pl-4 border-l border-slate-200">
           <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
