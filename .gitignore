@@ -34,7 +34,7 @@ yarn-error.log*
 next-env.d.ts
 
 # prisma local dev db files (preserve schema & migrations, ignore SQLite binary instance)
-prisma/*.db
+# prisma/*.db
 prisma/*.db-journal
 prisma/*.db-wal
 prisma/*.db-shm
