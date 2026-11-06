@@ -27,9 +27,6 @@ O projeto foi concebido para atender às demandas de varejo de alimentos e merca
 - **Inventário P7:** `/inventario`
 - **Login Administrativo:** `/login`
 
-### 🔑 Credenciais Padrão:
-- **Usuário:** `Admin`
-- **Senha:** `Admin123`
 
 ---
 
